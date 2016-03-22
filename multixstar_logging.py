@@ -1,5 +1,5 @@
-#! /usr/bin/python
-#or /packages/python/bin/python
+#! /usr/bin/python  
+#or /packages/python/bin/python 
 
 '''
 based on the code pvm_xstar using multiprocessing module instead of pvm
@@ -29,7 +29,7 @@ def print_help():
    print
    print
    print "Supported options are:"
-   print "  -w                the working dir (default will be `./`) WorkDir must exist & be writable"
+   print "  -w                the working dir (default will be `./`) WorkDir must exist & be writable" 
    #print "  -i <file>         a script to run before running xstar"
    print "  -k                keep log: do not delete after successful run"
    print "  -l <log>          redirect console output to log file"
@@ -52,12 +52,12 @@ def run(cmd,env_setup="",stdout=True):
 	def return_stdout(p):
 		return p.communicate()[0]
 	print cmd
-	if stdout:
-		if not env_setup=="": # if env is set then use it
-			return return_stdout(subprocess.Popen(cmd, shell=True, executable=os.getenv("SHELL"), env=env_setup)) #run command with set env => sas hea and ciao running!
+	if stdout:	
+		if not env_setup=="": # if env is set then use it 
+			return return_stdout(subprocess.Popen(cmd, shell=True, executable=os.getenv("SHELL"), env=env_setup )) #run command with set env => sas hea and ciao running!
 		return return_stdout(subprocess.Popen(cmd, shell=True, executable=os.getenv("SHELL"),stdout=subprocess.PIPE))
 	else:
-		if not env_setup=="": # if env is set then use it
+		if not env_setup=="": # if env is set then use it 
 			return subprocess.Popen(cmd, shell=True, executable=os.getenv("SHELL"),stdout=subprocess.PIPE,env=env_setup,stdin=subprocess.PIPE) #run command with set env => sas hea and ciao running!
 		return subprocess.Popen(cmd, shell=True, executable=os.getenv("SHELL"),stdout=subprocess.PIPE,stdin=subprocess.PIPE)
 
@@ -85,7 +85,7 @@ def get_sufix(wdir,extra=""):
 				i+=1
 		else:
 			break
-	return i
+	return i 
 
 def process_flags(argv=None):
 	'''
@@ -93,10 +93,10 @@ def process_flags(argv=None):
 	'''
 	if argv==None:
 		argv=os.sys.argv[1:]
-
+	
 	if len(argv)>1:
-
-		opts,args = getopt.getopt(argv,"hksl:n:d:w:",["help","no-help"])
+		
+		opts,args = getopt.getopt(argv,"hksl:n:d:",["help","no-help"])
 		opts=dict(opts)
 		if ("-h" in opts.keys()) or ("--help" in opts.keys()):
 			print_help()
@@ -112,18 +112,14 @@ def process_flags(argv=None):
 				keeplog=True
 			else:
 				keeplog=False
-
+			
 			if "-l" in opts.keys():
 				log_file=opts["-l"]
 			else:
 				log_file="mxstar.log"
 
 			if "-n" in opts.keys():
-				try:
-					max_process=int(opts["-n"])
-				except TypeError:
-					if opts["-n"]=="()":
-						max_process=None
+				max_process=int(opts["-n"])
 			else:
 				max_process=4
 	else:
@@ -144,7 +140,7 @@ def process_flags(argv=None):
 	return max_process,workDir,args,log_file,keeplog
 
 def check_enviroment(workDir):
-	''' checks heasoft is running
+	''' checks heasoft is running 
 		that workDir exist and is writable
 	'''
 	#is heasoft runnig?
@@ -191,7 +187,7 @@ def make_xcmd_dict(xcmds):
 	padding="%0"+str(len(str(len(xcmds))))+"d"
 	xcmd_dict={}
 	for n,x in enumerate(xcmds):
-		padded=padding % (n+1)
+		padded=padding % (n+1)		
 		xcmd_dict[padded]=x
 	return xcmd_dict
 
@@ -200,7 +196,8 @@ def check_results(padded):
 	for p in padded:
 		if not 'xout_spect1.fits' in os.listdir(p):
 			fault.append(p)
-	return fault.sort()
+	fault.sort()
+	return fault
 
 def main(argv=None):
 	#arg processing
@@ -215,8 +212,8 @@ def main(argv=None):
 	if not workDir[-1]=="/":
 		workDir+="/"
 	workDir+=wdir
-
-
+	
+	
 
 	xcmds=get_xcmds(args,os.environ["FTOOLS"]+"/bin/")
 	xcmd_dict=make_xcmd_dict(xcmds)
@@ -228,11 +225,11 @@ def main(argv=None):
 	for pad in xcmd_dict.keys():
 		os.mkdir(pad)
 
-
+	
 	#setup logging
 	logFormatter = logging.Formatter("%(message)s")
 	rootLogger = logging.getLogger()
-
+	
 	fileHandler = logging.FileHandler(log_file)
 	fileHandler.setFormatter(logFormatter)
 	rootLogger.addHandler(fileHandler)
@@ -244,17 +241,16 @@ def main(argv=None):
 
 
 
-	rootLogger.log("Using Dir "+os.getcwd())
+	rootLogger.info("Using Dir "+os.getcwd())
 	start_time=datetime.datetime.now()
-	rootLogger.log("Start time: "+str(start_time))
+	rootLogger.info("Start time: "+str(start_time))
 	p=mp.Pool(processes=max_process)
-
-	runs_return=p.map(run_xstar,xcmd_dict.items(),1)
+	runs_return=p.map(run_xstar,xcmd_dict.items(),1)	
 	for ret in runs_return:
-		rootLogger.log(ret.replace("\n\n","\n").strip())
-
+		rootLogger.info(ret.replace("\n\n","\n").strip())
+	
 	end_time=datetime.datetime.now()
-	rootLogger.log("End time: "+str(end_time))
+	rootLogger.info("End time: "+str(end_time))
 
 	failed=check_results(xcmd_dict.keys())
 	if len(failed)==0:
@@ -263,11 +259,11 @@ def main(argv=None):
 		padded=xcmd_dict.keys()
 		padded.sort()
 		for pad in padded:
-			run("xstar2table xstarspec=./"+pad+"/xout_spect1.fits",os.environ)
+			run("$FTOOLS/bin/xstar2table xstarspec=./"+pad+"/xout_spect1.fits",os.environ)
 		if not keeplog:
 			run("rm "+log_file)
 	else:
-		rootLogger.log("somethings not right in "+",".join(failed))
+		rootLogger.info("somethings not right in "+",".join(failed))
 
 
 
