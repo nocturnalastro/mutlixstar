@@ -221,7 +221,7 @@ def main(argv=None):
 
     xcmds = get_xcmds(args, os.environ["FTOOLS"] + "/bin/")
     xcmd_dict = make_xcmd_dict(xcmds)
-    model_name = dict([z.split("=")for z in xcmd_dict[xcmd_dict.keys()[0]].replace("xstar ", "").split()])["modelname"].replace("'", "").replace('"', '')
+    model_name = dict([z.split("=")for z in xcmd_dict[list(xcmd_dict.keys())[0]].replace("xstar ", "").split()])["modelname"].replace("'", "").replace('"', '')
     if not os.path.exists(model_name):
         os.mkdir(model_name)
     os.chdir(model_name)
@@ -257,7 +257,7 @@ def main(argv=None):
     if len(failed) == 0:
         for dest in ['xout_ain.fits', 'xout_aout.fits', 'xout_mtable.fits']:
             run("cp ../xstinitable.fits " + dest)
-        padded = xcmd_dict.keys()
+        padded = list(xcmd_dict.keys())
         padded.sort()
         for pad in padded:
             run("$FTOOLS/bin/xstar2table xstarspec=./" + pad + "/xout_spect1.fits", os.environ)
