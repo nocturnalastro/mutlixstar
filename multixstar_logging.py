@@ -129,7 +129,7 @@ def process_flags(argv=None):
     else:
         ans = "blank"
         while not ans.lower()[0] == "y" and not ans.lower()[0] == "n":
-            ans = raw_input("Would you like to continue with defaults?\n").strip() + "blank"
+            ans = enter_input("Would you like to continue with defaults?\n").strip() + "blank"
         if ans.lower()[0] == "n":
             print_help()
             os.sys.exit()
@@ -267,4 +267,10 @@ def main(argv=None):
         rootLogger.info("somethings not right in " + ",".join(str(failed)))
 
 if __name__ == '__main__':
+    # Use `raw_input` if python2 and `input` if python3
+    if os.sys.version_info[:2] <= (3, 0):
+        enter_input = raw_input
+    else:
+        enter_input = input
+
     main()
