@@ -24,31 +24,30 @@ import logging
 
 
 def print_help():
-    print ""
-    print "multixstar: manages parallel execution of multiple XSTAR jobs, with python's multiprocessing module"
-    print "Version 0.1"
-    print
-    print "Usage:  multixstar [options] <joblist|params>"
-    print
-    print
-    print "Supported options are:"
-    print "  -w                the working dir (default will be `./`) WorkDir must exist & be writable"
-    # print "  -i <file>         a script to run before running xstar"
-    print "  -k                keep log: do not delete after successful run"
-    print "  -l <log>          redirect console output to log file"
-    print "  -n <N>           set max number processes per host to N (default: 4)"
-    # print "  -j  <file|param>  a joblist or a xstinitable parameters"
-    print "  -h,--help         prints this message"
-    print "  -s,--no-help     surpresses help message so you can run with defaults"
-    print
-    print "Normally xstinitable will be launched to prompt for XSTAR physical"
-    print "parameters and generate a list of XSTAR jobs to run in parallel."
-    print "This can be customized by supplying xstinitable parameters on the"
-    print "command line (such as mode=h) OR by supplying the name of an "
-    print "existing joblist file, in which case xstinitable will not be run"
-    print "nor will the generated spectra be collated into a single table"
-    print "model with xstar2table."
-    print
+     print("""
+     multixstar: manages parallel execution of multiple XSTAR jobs, with python's multiprocessing module
+     Version 0.1
+
+     Usage:  multixstar [options] <joblist|params>
+
+
+     Supported options are:"
+       -w                the working dir (default will be `./`) WorkDir must exist & be writable
+       -k                keep log: do not delete after successful run
+       -l <log>          redirect console output to log file
+       -n <N>           set max number processes per host to N (default: 4)
+       -h,--help         prints this message
+       -s,--no-help     surpresses help message so you can run with defaults
+
+     Normally xstinitable will be launched to prompt for XSTAR physical
+     parameters and generate a list of XSTAR jobs to run in parallel.
+     This can be customized by supplying xstinitable parameters on the
+     command line (such as mode=h) OR by supplying the name of an
+     existing joblist file, in which case xstinitable will not be run
+     nor will the generated spectra be collated into a single table
+     model with xstar2table.
+     """)
+
 
 
 def run(cmd, env_setup="", stdout=True):
