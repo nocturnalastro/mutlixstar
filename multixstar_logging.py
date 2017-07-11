@@ -76,7 +76,7 @@ def run_xstar(xcmd):
     to_return = str(p.pid) + "\n"
     output = p.stdout.readlines()
     os.chdir("../")
-    to_return = "\n".join(output) + "\n"
+    to_return = "\n".join(str(output)) + "\n"
     return to_return
 
 
@@ -164,7 +164,7 @@ def get_xcmds(args=[], binpath=""):
     if len(args) > 0:
         if not os.path.exists("../" + args[0]):
             to_return = 1 + "\n"
-            run(binpath + "xstinitable " + " ".join(args), os.environ)
+            run(binpath + "xstinitable " + " ".join(str(args)), os.environ)
             joblist = "xstinitable.lis"
         else:
             if not args[0][0] == "/":
@@ -264,7 +264,7 @@ def main(argv=None):
         if not keeplog:
             run("rm " + log_file)
     else:
-        rootLogger.info("somethings not right in " + ",".join(failed))
+        rootLogger.info("somethings not right in " + ",".join(str(failed)))
 
 if __name__ == '__main__':
     main()
