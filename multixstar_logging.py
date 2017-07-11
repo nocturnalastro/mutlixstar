@@ -10,7 +10,6 @@ using the multiprocessing python module.  XSTAR is part of the LHEASOFT astronom
 HEASARC, and is used to for calculating the physical conditions and
 emission spectra of photoionized gases (Kallman & Bautista 2001).
 """
-
 from __future__ import print_function
 from __future__ import division
 from __future__ import unicode_literals
@@ -24,31 +23,37 @@ import datetime
 import logging
 
 
+__version__ = "0.1.1"
+
+
 def print_help():
-     print("""
-     multixstar: manages parallel execution of multiple XSTAR jobs, with python's multiprocessing module
-     Version 0.1
+    flags = ["-w      the working dir (default will be `./`) WorkDir must exist & be writable",
+             # "  -i <file>         a script to run before running xstar",
+             "\t  -k                keep log: do not delete after successful run",
+             "\t  -l <log>          redirect console output to log file",
+             "\t  -n <N>           set max number processes per host to N (default: 4)",
+             # "  -j  <file|param>  a joblist or a xstinitable parameters",
+             "\t  -h,--help         prints this message",
+             "\t  -s,--no-help     surpresses help message so you can run with defaults"]
 
-     Usage:  multixstar [options] <joblist|params>
+    print("""
+          multixstar: manages parallel execution of multiple XSTAR jobs, with python's multiprocessing module
+          Version {version}
 
+          Usage:  multixstar [options] <joblist|params>
 
-     Supported options are:"
-       -w                the working dir (default will be `./`) WorkDir must exist & be writable
-       -k                keep log: do not delete after successful run
-       -l <log>          redirect console output to log file
-       -n <N>           set max number processes per host to N (default: 4)
-       -h,--help         prints this message
-       -s,--no-help     surpresses help message so you can run with defaults
+          Supported options are:
 
-     Normally xstinitable will be launched to prompt for XSTAR physical
-     parameters and generate a list of XSTAR jobs to run in parallel.
-     This can be customized by supplying xstinitable parameters on the
-     command line (such as mode=h) OR by supplying the name of an
-     existing joblist file, in which case xstinitable will not be run
-     nor will the generated spectra be collated into a single table
-     model with xstar2table.
-     """)
+          {flags}
 
+          Normally xstinitable will be launched to prompt for XSTAR physical
+          parameters and generate a list of XSTAR jobs to run in parallel.
+          This can be customized by supplying xstinitable parameters on the
+          command line (such as mode=h) OR by supplying the name of an
+          existing joblist file, in which case xstinitable will not be run
+          nor will the generated spectra be collated into a single table
+          model with xstar2table.\n""".format(version=__version__,
+                                              flags="\n".join(flags)))
 
 
 def run(cmd, env_setup="", stdout=True):
