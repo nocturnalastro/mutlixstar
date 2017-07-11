@@ -11,6 +11,10 @@ HEASARC, and is used to for calculating the physical conditions and
 emission spectra of photoionized gases (Kallman & Bautista 2001).
 """
 
+from __future__ import print_function
+from __future__ import division
+from __future__ import unicode_literals
+from __future__ import absolute_import
 import subprocess
 import os
 import multiprocessing as mp
