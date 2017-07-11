@@ -67,7 +67,7 @@ def run(cmd, env_setup="", stdout=True):
 def run_xstar(xcmd):
     to_return = ""
     os.chdir(xcmd[0])
-    to_return + = "Running:" + xcmd[0] + "\n"
+    to_return += "Running:" + xcmd[0] + "\n"
     os.environ['PFILES'] = os.getcwd()
     to_return = "copycat" + "\n"
     subprocess.Popen("cp $HEADAS/syspfiles/xstar.par ./", shell=True, executable=os.getenv("SHELL"), stdout=subprocess.PIPE, env=os.environ).wait()
@@ -216,7 +216,7 @@ def main(argv=None):
     os.mkdir(wdir)
     os.chdir(wdir)
     if not workDir[-1] == "/":
-        workDir + ="/"
+        workDir +="/"
     workDir += wdir
 
     xcmds = get_xcmds(args, os.environ["FTOOLS"] + "/bin/")
