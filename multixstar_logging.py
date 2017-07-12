@@ -195,11 +195,11 @@ def main(argv=None):
     check_enviroment(workDir)
 
     wdir = "mxstar." + str(get_sufix(workDir))
-    os.mkdir(wdir)
-    os.chdir(wdir)
     if not workDir[-1] == "/":
         workDir += "/"
     workDir += wdir
+    os.mkdir(workDir)
+    os.chdir(workDir)
 
     xcmds = get_xcmds(args, os.environ["FTOOLS"] + "/bin/")
     xcmd_dict = make_xcmd_dict(xcmds)
