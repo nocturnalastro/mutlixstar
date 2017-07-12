@@ -118,7 +118,7 @@ def process_flags(argv=None):
         parser.print_help()
         os.sys.exit()
     else:
-        workDir = options.workdir
+        workDir = os.path.abspath(options.workdir)
         keeplog = options.keeplog
         log_file = options.logfile
         max_process = options.nproc
