@@ -46,14 +46,14 @@ def run_xstar(xcmd):
     os.chdir(xcmd[0])
     to_return += "Running:" + xcmd[0] + "\n"
     os.environ['PFILES'] = os.getcwd()
-    to_return = "copycat" + "\n"
+    to_return += "copycat" + "\n"
     subprocess.Popen("cp $HEADAS/syspfiles/xstar.par ./", shell=True, executable=os.getenv("SHELL"), stdout=subprocess.PIPE, env=os.environ).wait()
-    to_return = xcmd[1] + "\n"
+    to_return += xcmd[1] + "\n"
     p = subprocess.Popen("$FTOOLS/bin/" + xcmd[1], shell=True, executable=os.getenv("SHELL"), stdout=subprocess.PIPE, env=os.environ)
-    to_return = str(p.pid) + "\n"
+    to_return += str(p.pid) + "\n"
     output = p.stdout.readlines()
     os.chdir("../")
-    to_return = "\n".join(str(output)) + "\n"
+    to_return += "\n".join([line.decode("utf-8") for line in output]) + "\n"
     return to_return
 
 
