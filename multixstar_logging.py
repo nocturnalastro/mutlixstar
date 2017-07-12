@@ -27,36 +27,6 @@ import logging
 __version__ = "0.1.1"
 
 
-def print_help():
-    flags = ["-w      the working dir (default will be `./`) WorkDir must exist & be writable",
-             # "  -i <file>         a script to run before running xstar",
-             "\t  -k                keep log: do not delete after successful run",
-             "\t  -l <log>          redirect console output to log file",
-             "\t  -n <N>           set max number processes per host to N (default: 4)",
-             # "  -j  <file|param>  a joblist or a xstinitable parameters",
-             "\t  -h,--help         prints this message",
-             "\t  -s,--no-help     surpresses help message so you can run with defaults"]
-
-    print("""
-          multixstar: manages parallel execution of multiple XSTAR jobs, with python's multiprocessing module
-          Version {version}
-
-          Usage:  multixstar [options] <joblist|params>
-
-          Supported options are:
-
-          {flags}
-
-          Normally xstinitable will be launched to prompt for XSTAR physical
-          parameters and generate a list of XSTAR jobs to run in parallel.
-          This can be customized by supplying xstinitable parameters on the
-          command line (such as mode=h) OR by supplying the name of an
-          existing joblist file, in which case xstinitable will not be run
-          nor will the generated spectra be collated into a single table
-          model with xstar2table.\n""".format(version=__version__,
-                                              flags="\n".join(flags)))
-
-
 def run(cmd, env_setup="", stdout=True):
     '''runs cmds in systems shell.'''
     def return_stdout(p):
