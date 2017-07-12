@@ -220,7 +220,7 @@ def check_results(padded):
 
 def main(argv=None):
     # arg processing
-    max_process, workDir, args, log_file, keeplog = new_process_flags()
+    max_process, workDir, args, log_file, keeplog = process_flags()
 
     check_enviroment(workDir)
 
