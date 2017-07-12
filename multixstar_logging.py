@@ -10,7 +10,11 @@ using the multiprocessing python module.  XSTAR is part of the LHEASOFT astronom
 HEASARC, and is used to for calculating the physical conditions and
 emission spectra of photoionized gases (Kallman & Bautista 2001).
 """
-
+from __future__ import print_function
+from __future__ import division
+from __future__ import unicode_literals
+from __future__ import absolute_import
+from six.moves import input
 import subprocess
 import os
 import multiprocessing as mp
@@ -19,32 +23,37 @@ import datetime
 import logging
 
 
+__version__ = "0.1.1"
+
+
 def print_help():
-    print ""
-    print "multixstar: manages parallel execution of multiple XSTAR jobs, with python's multiprocessing module"
-    print "Version 0.1"
-    print
-    print "Usage:  multixstar [options] <joblist|params>"
-    print
-    print
-    print "Supported options are:"
-    print "  -w                the working dir (default will be `./`) WorkDir must exist & be writable"
-    # print "  -i <file>         a script to run before running xstar"
-    print "  -k                keep log: do not delete after successful run"
-    print "  -l <log>          redirect console output to log file"
-    print "  -n <N>           set max number processes per host to N (default: 4)"
-    # print "  -j  <file|param>  a joblist or a xstinitable parameters"
-    print "  -h,--help         prints this message"
-    print "  -s,--no-help     surpresses help message so you can run with defaults"
-    print
-    print "Normally xstinitable will be launched to prompt for XSTAR physical"
-    print "parameters and generate a list of XSTAR jobs to run in parallel."
-    print "This can be customized by supplying xstinitable parameters on the"
-    print "command line (such as mode=h) OR by supplying the name of an "
-    print "existing joblist file, in which case xstinitable will not be run"
-    print "nor will the generated spectra be collated into a single table"
-    print "model with xstar2table."
-    print
+    flags = ["-w      the working dir (default will be `./`) WorkDir must exist & be writable",
+             # "  -i <file>         a script to run before running xstar",
+             "\t  -k                keep log: do not delete after successful run",
+             "\t  -l <log>          redirect console output to log file",
+             "\t  -n <N>           set max number processes per host to N (default: 4)",
+             # "  -j  <file|param>  a joblist or a xstinitable parameters",
+             "\t  -h,--help         prints this message",
+             "\t  -s,--no-help     surpresses help message so you can run with defaults"]
+
+    print("""
+          multixstar: manages parallel execution of multiple XSTAR jobs, with python's multiprocessing module
+          Version {version}
+
+          Usage:  multixstar [options] <joblist|params>
+
+          Supported options are:
+
+          {flags}
+
+          Normally xstinitable will be launched to prompt for XSTAR physical
+          parameters and generate a list of XSTAR jobs to run in parallel.
+          This can be customized by supplying xstinitable parameters on the
+          command line (such as mode=h) OR by supplying the name of an
+          existing joblist file, in which case xstinitable will not be run
+          nor will the generated spectra be collated into a single table
+          model with xstar2table.\n""".format(version=__version__,
+                                              flags="\n".join(flags)))
 
 
 def run(cmd, env_setup="", stdout=True):
@@ -64,7 +73,7 @@ def run(cmd, env_setup="", stdout=True):
 def run_xstar(xcmd):
     to_return = ""
     os.chdir(xcmd[0])
-    to_return + = "Running:" + xcmd[0] + "\n"
+    to_return += "Running:" + xcmd[0] + "\n"
     os.environ['PFILES'] = os.getcwd()
     to_return = "copycat" + "\n"
     subprocess.Popen("cp $HEADAS/syspfiles/xstar.par ./", shell=True, executable=os.getenv("SHELL"), stdout=subprocess.PIPE, env=os.environ).wait()
@@ -73,7 +82,7 @@ def run_xstar(xcmd):
     to_return = str(p.pid) + "\n"
     output = p.stdout.readlines()
     os.chdir("../")
-    to_return = "\n".join(output) + "\n"
+    to_return = "\n".join(str(output)) + "\n"
     return to_return
 
 
@@ -126,7 +135,7 @@ def process_flags(argv=None):
     else:
         ans = "blank"
         while not ans.lower()[0] == "y" and not ans.lower()[0] == "n":
-            ans = raw_input("Would you like to continue with defaults?\n").strip() + "blank"
+            ans = input("Would you like to continue with defaults?\n").strip() + "blank"
         if ans.lower()[0] == "n":
             print_help()
             os.sys.exit()
@@ -161,7 +170,7 @@ def get_xcmds(args=[], binpath=""):
     if len(args) > 0:
         if not os.path.exists("../" + args[0]):
             to_return = 1 + "\n"
-            run(binpath + "xstinitable " + " ".join(args), os.environ)
+            run(binpath + "xstinitable " + " ".join(str(args)), os.environ)
             joblist = "xstinitable.lis"
         else:
             if not args[0][0] == "/":
@@ -213,12 +222,12 @@ def main(argv=None):
     os.mkdir(wdir)
     os.chdir(wdir)
     if not workDir[-1] == "/":
-        workDir + ="/"
+        workDir +="/"
     workDir += wdir
 
     xcmds = get_xcmds(args, os.environ["FTOOLS"] + "/bin/")
     xcmd_dict = make_xcmd_dict(xcmds)
-    model_name = dict([z.split("=")for z in xcmd_dict[xcmd_dict.keys()[0]].replace("xstar ", "").split()])["modelname"].replace("'", "").replace('"', '')
+    model_name = dict([z.split("=")for z in xcmd_dict[list(xcmd_dict.keys())[0]].replace("xstar ", "").split()])["modelname"].replace("'", "").replace('"', '')
     if not os.path.exists(model_name):
         os.mkdir(model_name)
     os.chdir(model_name)
@@ -254,14 +263,14 @@ def main(argv=None):
     if len(failed) == 0:
         for dest in ['xout_ain.fits', 'xout_aout.fits', 'xout_mtable.fits']:
             run("cp ../xstinitable.fits " + dest)
-        padded = xcmd_dict.keys()
+        padded = list(xcmd_dict.keys())
         padded.sort()
         for pad in padded:
             run("$FTOOLS/bin/xstar2table xstarspec=./" + pad + "/xout_spect1.fits", os.environ)
         if not keeplog:
             run("rm " + log_file)
     else:
-        rootLogger.info("somethings not right in " + ",".join(failed))
+        rootLogger.info("somethings not right in " + ",".join(str(failed)))
 
 if __name__ == '__main__':
     main()
