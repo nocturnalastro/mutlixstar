@@ -242,7 +242,8 @@ def main(argv=None):
         padded = list(xcmd_dict.keys())
         padded.sort()
         for pad in padded:
-            run("$FTOOLS/bin/xstar2table xstarspec=./" + pad + "/xout_spect1.fits", os.environ)
+            run("$FTOOLS/bin/xstar2table xstarspec=" + workDir + "/" +
+                model_name + "/" + pad + "/xout_spect1.fits", os.environ)
         if not keeplog:
             run("rm " + log_file)
     else:
