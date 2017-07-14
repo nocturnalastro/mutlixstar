@@ -165,7 +165,8 @@ def get_xcmds(args=[], binpath=""):
                                        joblist.split("/")[-1].replace(old1,
                                                                       new1)))
             else:
-                os.rename(joblist, workDir + joblist.split("/")[-1])
+                os.rename(joblist,
+                          os.path.join(workDir, joblist.split("/")[-1]))
                 joblist = joblist.split("/")[-1]
     else:
         run(binpath + "xstinitable", os.environ)
@@ -199,8 +200,6 @@ def main(argv=None):
     check_enviroment(workDir)
 
     wdir = "mxstar." + str(get_sufix(workDir))
-    if not workDir[-1] == "/":
-        workDir += "/"
     workDir += wdir
     os.mkdir(workDir)
     os.chdir(workDir)
