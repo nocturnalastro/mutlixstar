@@ -152,14 +152,18 @@ def get_xcmds(args=[], binpath=""):
             if not args[0][0] == "/":
                 to_return = "2" + "\n"
                 joblist = args[0]
-                os.rename("../" + joblist, os.getcwd() + "/" + joblist.split("/")[-1])
+                os.rename("../" + joblist,
+                          os.path.join(os.getcwd(), joblist.split("/")[-1]))
                 if joblist[-4:] == ".fits":
                     old1 = ".fits"
                     new1 = ".lis"
                 else:
                     old1 = ".lis"
                     new1 = ".fits"
-                os.rename("../" + joblist.replace(old1, new1), os.getcwd() + "/" + joblist.split("/")[-1].replace(old1, new1))
+                os.rename("../" + joblist.replace(old1, new1),
+                          os.path.join(os.getcwd(),
+                                       joblist.split("/")[-1].replace(old1,
+                                                                      new1)))
             else:
                 os.rename(joblist, workDir + joblist.split("/")[-1])
                 joblist = joblist.split("/")[-1]
@@ -242,8 +246,8 @@ def main(argv=None):
         padded = list(xcmd_dict.keys())
         padded.sort()
         for pad in padded:
-            run("$FTOOLS/bin/xstar2table xstarspec=" + workDir + "/" +
-                model_name + "/" + pad + "/xout_spect1.fits", os.environ)
+            run("$FTOOLS/bin/xstar2table xstarspec=" +
+                os.path.join(workDir, model_name, pad, "xout_spect1.fits"), os.environ)
         if not keeplog:
             run("rm " + log_file)
     else:
