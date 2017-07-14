@@ -19,7 +19,6 @@ import argparse
 import subprocess
 import os
 import multiprocessing as mp
-import getopt
 import datetime
 import logging
 
