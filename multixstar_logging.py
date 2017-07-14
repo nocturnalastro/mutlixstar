@@ -199,8 +199,6 @@ def main(argv=None):
     check_enviroment(workDir)
 
     wdir = "mxstar." + str(get_sufix(workDir))
-    if not workDir[-1] == "/":
-        workDir += "/"
     workDir += wdir
     os.mkdir(workDir)
     os.chdir(workDir)
