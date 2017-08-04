@@ -15,6 +15,7 @@ from __future__ import division
 from __future__ import unicode_literals
 from __future__ import absolute_import
 from six.moves import input
+import argparse
 import subprocess
 import os
 import multiprocessing as mp
@@ -24,36 +25,6 @@ import logging
 
 
 __version__ = "0.1.1"
-
-
-def print_help():
-    flags = ["-w      the working dir (default will be `./`) WorkDir must exist & be writable",
-             # "  -i <file>         a script to run before running xstar",
-             "\t  -k                keep log: do not delete after successful run",
-             "\t  -l <log>          redirect console output to log file",
-             "\t  -n <N>           set max number processes per host to N (default: 4)",
-             # "  -j  <file|param>  a joblist or a xstinitable parameters",
-             "\t  -h,--help         prints this message",
-             "\t  -s,--no-help     surpresses help message so you can run with defaults"]
-
-    print("""
-          multixstar: manages parallel execution of multiple XSTAR jobs, with python's multiprocessing module
-          Version {version}
-
-          Usage:  multixstar [options] <joblist|params>
-
-          Supported options are:
-
-          {flags}
-
-          Normally xstinitable will be launched to prompt for XSTAR physical
-          parameters and generate a list of XSTAR jobs to run in parallel.
-          This can be customized by supplying xstinitable parameters on the
-          command line (such as mode=h) OR by supplying the name of an
-          existing joblist file, in which case xstinitable will not be run
-          nor will the generated spectra be collated into a single table
-          model with xstar2table.\n""".format(version=__version__,
-                                              flags="\n".join(flags)))
 
 
 def run(cmd, env_setup="", stdout=True):
@@ -75,14 +46,14 @@ def run_xstar(xcmd):
     os.chdir(xcmd[0])
     to_return += "Running:" + xcmd[0] + "\n"
     os.environ['PFILES'] = os.getcwd()
-    to_return = "copycat" + "\n"
+    to_return += "copycat" + "\n"
     subprocess.Popen("cp $HEADAS/syspfiles/xstar.par ./", shell=True, executable=os.getenv("SHELL"), stdout=subprocess.PIPE, env=os.environ).wait()
-    to_return = xcmd[1] + "\n"
+    to_return += xcmd[1] + "\n"
     p = subprocess.Popen("$FTOOLS/bin/" + xcmd[1], shell=True, executable=os.getenv("SHELL"), stdout=subprocess.PIPE, env=os.environ)
-    to_return = str(p.pid) + "\n"
+    to_return += str(p.pid) + "\n"
     output = p.stdout.readlines()
     os.chdir("../")
-    to_return = "\n".join(str(output)) + "\n"
+    to_return += "\n".join([line.decode("utf-8") for line in output]) + "\n"
     return to_return
 
 
@@ -102,50 +73,55 @@ def process_flags(argv=None):
     '''
     processing script arguments
     '''
-    if argv is None:
-        argv = os.sys.argv[1:]
+    usage = "multixstar [options] <joblist|params>"
 
-    if len(argv) > 1:
-        opts, args = getopt.getopt(argv, "hksl:n:d:", ["help", "no-help"])
-        opts = dict(opts)
-        if ("-h" in opts.keys()) or ("--help" in opts.keys()):
-            print_help()
-            if not opts.keys() > 1:
-                os.sys.exit()
-        else:
-            if "-w" in opts.keys():
-                workDir = opts["-w"]
-            else:
-                workDir = "./"
+    description = """multixstar: manages parallel execution of multiple XSTAR
+    jobs, with python's multiprocessing module.
+    Version: {version}""".format(version=__version__)
+    epilogue = """Normally xstinitable will be launched to prompt for XSTAR
+    physical parameters and generate a list of XSTAR jobs to run in parallel.
+    This can be customized by supplying xstinitable parameters on the command
+    line (such as mode=h) OR by supplying the name of an existing joblist
+    file, in which case xstinitable will not be run nor will the generated
+    spectra be collated into a single table model with xstar2table"""
 
-            if "-k" in opts.keys():
-                keeplog = True
-            else:
-                keeplog = False
+    parser = argparse.ArgumentParser(usage=usage, description=description,
+                                     epilog=epilogue)
 
-            if "-l" in opts.keys():
-                log_file = opts["-l"]
-            else:
-                log_file = "mxstar.log"
+    parser.add_argument("-w", "--workdir",
+                        dest="workdir", default="./", metavar="WorkDir",
+                        help="Work directory to save results of the run")
+    parser.add_argument("-k", action="store_true", dest="keeplog",
+                        default=False, help="keep log file",)
+    parser.add_argument("-l", "--logfile",
+                        dest="logfile", default="mxstar.log",
+                        metavar="LOGFILE", help="specify file to save log")
+    parser.add_argument("-n", "--nproc", type=int, dest="nproc", default=4,
+                        metavar="NUMPROC",
+                        help="Max number of processors per host")
+    # options stores known arguments and
+    # args stores potential xstinitable arguments
+    options, args = parser.parse_known_args()
 
-            if "-n" in opts.keys():
-                max_process = int(opts["-n"])
-            else:
-                max_process = 4
+    ans = "blank"
+    while not ans.lower()[0] == "y" and not ans.lower()[0] == "n":
+        print("These values are being used: ")
+        print("Working dir: ", options.workdir)
+        print("Keep log file ?", options.keeplog)
+        print("Log file: ", options.logfile)
+        print("Max number of processor:", options.nproc)
+        print("")
+        ans = input("Would you like to continue? (y/n): ").strip()
+        if not ans:
+            ans = "blank"
+    if ans.lower()[0] == "n":
+        parser.print_help()
+        os.sys.exit()
     else:
-        ans = "blank"
-        while not ans.lower()[0] == "y" and not ans.lower()[0] == "n":
-            ans = input("Would you like to continue with defaults?\n").strip() + "blank"
-        if ans.lower()[0] == "n":
-            print_help()
-            os.sys.exit()
-        else:
-            # set defaults
-            max_process = 4
-            workDir = "./"
-            args = ""
-            keeplog = False
-            log_file = "mxstar.log"
+        workDir = os.path.abspath(options.workdir)
+        keeplog = options.keeplog
+        log_file = options.logfile
+        max_process = options.nproc
 
     return max_process, workDir, args, log_file, keeplog
 
@@ -169,23 +145,28 @@ def get_xcmds(args=[], binpath=""):
     binpath += "/"
     if len(args) > 0:
         if not os.path.exists("../" + args[0]):
-            to_return = 1 + "\n"
+            to_return = "1" + "\n"
             run(binpath + "xstinitable " + " ".join(str(args)), os.environ)
             joblist = "xstinitable.lis"
         else:
             if not args[0][0] == "/":
-                to_return = 2 + "\n"
+                to_return = "2" + "\n"
                 joblist = args[0]
-                os.rename("../" + joblist, os.getcwd() + "/" + joblist.split("/")[-1])
+                os.rename("../" + joblist,
+                          os.path.join(os.getcwd(), joblist.split("/")[-1]))
                 if joblist[-4:] == ".fits":
                     old1 = ".fits"
                     new1 = ".lis"
                 else:
                     old1 = ".lis"
                     new1 = ".fits"
-                os.rename("../" + joblist.replace(old1, new1), os.getcwd() + "/" + joblist.split("/")[-1].replace(old1, new1))
+                os.rename("../" + joblist.replace(old1, new1),
+                          os.path.join(os.getcwd(),
+                                       joblist.split("/")[-1].replace(old1,
+                                                                      new1)))
             else:
-                os.rename(joblist, workDir + joblist.split("/")[-1])
+                os.rename(joblist,
+                          os.path.join(workDir, joblist.split("/")[-1]))
                 joblist = joblist.split("/")[-1]
     else:
         run(binpath + "xstinitable", os.environ)
@@ -219,11 +200,9 @@ def main(argv=None):
     check_enviroment(workDir)
 
     wdir = "mxstar." + str(get_sufix(workDir))
-    os.mkdir(wdir)
-    os.chdir(wdir)
-    if not workDir[-1] == "/":
-        workDir +="/"
     workDir += wdir
+    os.mkdir(workDir)
+    os.chdir(workDir)
 
     xcmds = get_xcmds(args, os.environ["FTOOLS"] + "/bin/")
     xcmd_dict = make_xcmd_dict(xcmds)
@@ -266,11 +245,13 @@ def main(argv=None):
         padded = list(xcmd_dict.keys())
         padded.sort()
         for pad in padded:
-            run("$FTOOLS/bin/xstar2table xstarspec=./" + pad + "/xout_spect1.fits", os.environ)
+            run("$FTOOLS/bin/xstar2table xstarspec=" +
+                os.path.join(workDir, model_name, pad, "xout_spect1.fits"), os.environ)
         if not keeplog:
             run("rm " + log_file)
     else:
         rootLogger.info("somethings not right in " + ",".join(str(failed)))
+
 
 if __name__ == '__main__':
     main()
