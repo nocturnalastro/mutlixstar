@@ -19,7 +19,6 @@ import argparse
 import subprocess
 import os
 import multiprocessing as mp
-import getopt
 import datetime
 import logging
 
@@ -145,12 +144,10 @@ def get_xcmds(args=[], binpath=""):
     binpath += "/"
     if len(args) > 0:
         if not os.path.exists("../" + args[0]):
-            to_return = "1" + "\n"
             run(binpath + "xstinitable " + " ".join(str(args)), os.environ)
             joblist = "xstinitable.lis"
         else:
             if not args[0][0] == "/":
-                to_return = "2" + "\n"
                 joblist = args[0]
                 os.rename("../" + joblist,
                           os.path.join(os.getcwd(), joblist.split("/")[-1]))
