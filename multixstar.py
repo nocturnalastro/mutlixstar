@@ -85,7 +85,7 @@ def make_new_dir(dir, extra=None):
     """ generates a unqie suffix"""
     i = 0
     new_dir = get_new_dir(dir, i, extra)
-    while new_dir.exits():
+    while new_dir.exists():
         i += 1
         new_dir = get_new_dir(dir, i, extra)
     new_dir.mkdir()
@@ -189,7 +189,7 @@ def get_xstar_cmds(args=None, binpath=None):
     if not joblist:
         run(
             "{exe} {args}".format(
-                exe=binpath.join("xstinitable"), args=" ".join(map(str, args))
+                exe=binpath.joinpath("xstinitable"), args=" ".join(map(str, args))
             ),
             os.environ,
         )
@@ -247,18 +247,7 @@ def make_xstable(args, run_dirs, model_dir):
             ),
             os.environ,
         )
-
-
-def process_jobs(pool, jobs, chunksize=1):
-    """Run jobs in xstar"""
-    logging.info("Using Dir " + os.getcwd())
-    start_time = datetime.now()
-    logging.info("Start time: {}".format(start_time))
-
-    runs_return = pool.map(run_xstar, jobs.items(), chunksize)
-
-    for ret in runs_return:
-        logging.info(ret.strip())
+exists
 
     end_time = datetime.now()
     logging.info("End time: {}".format(end_time))
