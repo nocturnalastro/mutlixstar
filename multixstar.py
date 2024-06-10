@@ -19,7 +19,6 @@ import subprocess
 import sys
 from distutils.dir_util import copy_tree
 from pathlib import Path
-import psutil
 from shutil import copy as copy_file
 import re
 from datetime import datetime
@@ -145,7 +144,7 @@ spectra be collated into a single table model with xstar2table
         "--nproc",
         type=int,
         dest="nproc",
-        default=psutil.cpu_count(),
+        default=mp.cpu_count(),
         metavar="NUMPROC",
         help="Max number of processors per host",
     )
