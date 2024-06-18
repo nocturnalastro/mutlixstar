@@ -244,7 +244,7 @@ def make_xstable(args, run_dirs, model_dir):
         base_file = Path("xstinitable.fits")
 
     for dest_file in ["xout_ain.fits", "xout_aout.fits", "xout_mtable.fits"]:
-        copy_tree(base_file, model_dir.joinpath(dest_file))
+        copy_file(base_file, model_dir.joinpath(dest_file))
 
     for run_dir in sorted(run_dirs):
         run(
