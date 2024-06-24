@@ -305,6 +305,7 @@ def main(options, args):
         # Exit with non-zero code
         sys.exit(1)
     else:
+        os.chdir(workdir)
         make_xstable(args, run_dirs, model_dir)
 
     if not options.keeplog:
